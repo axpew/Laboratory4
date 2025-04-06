@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.paint.Color?>
@@ -42,14 +43,15 @@
             </Pane>
             <Pane layoutX="1.0" layoutY="83.0" prefHeight="497.0" prefWidth="784.0" style="-fx-background-color: radial-gradient(focus-angle 0.0deg, focus-distance 11.4943% , center 50.0% 50.0%, radius 59.1954%, #ffffff 0.0%, #8f99b5 100.0%);">
                <children>
-                  <TableView fx:id="studentTableColumn" layoutX="51.0" layoutY="35.0" prefHeight="423.0" prefWidth="699.0">
+                  <TableView fx:id="studentTableColumn" layoutX="51.0" layoutY="35.0" prefHeight="325.0" prefWidth="654.0">
                     <columns>
                       <TableColumn fx:id="idTableColumn" prefWidth="77.0" text="ID" />
-                      <TableColumn fx:id="nameTableColumn" minWidth="0.0" prefWidth="309.0" text="Name" />
-                        <TableColumn fx:id="ageTableColumn" minWidth="0.0" prefWidth="67.0" text="Age" />
-                        <TableColumn fx:id="addressTableColumn" minWidth="0.0" prefWidth="245.0" text="Address" />
+                      <TableColumn fx:id="nameTableColumn" minWidth="0.0" prefWidth="298.0" text="Name" />
+                        <TableColumn fx:id="ageTableColumn" minWidth="0.0" prefWidth="60.0" text="Age" />
+                        <TableColumn fx:id="addressTableColumn" minWidth="0.0" prefWidth="218.0" text="Address" />
                     </columns>
                   </TableView>
+                  <TextArea fx:id="taShowMessages" layoutX="51.0" layoutY="371.0" prefHeight="106.0" prefWidth="655.0" />
                </children>
             </Pane>
             <Pane fx:id="buttonPane" layoutX="1.0" layoutY="580.0" prefHeight="139.0" prefWidth="783.0">
