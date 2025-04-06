@@ -69,7 +69,7 @@
                         <Font name="Arial" size="20.0" />
                      </font>
                   </Button>
-                  <Button layoutX="301.0" layoutY="14.0" mnemonicParsing="false" onAction="#sortByStudent" style="-fx-background-radius: 15;" text="Add Sorted">
+                  <Button layoutX="296.0" layoutY="14.0" mnemonicParsing="false" onAction="#sortByStudent" style="-fx-background-radius: 15;" text="Sort By Student">
                      <font>
                         <Font name="Arial" size="20.0" />
                      </font>
@@ -84,12 +84,12 @@
                         <Font name="Arial" size="20.0" />
                      </font>
                   </Button>
-                  <Button layoutX="162.0" layoutY="76.0" mnemonicParsing="false" onAction="#getNext" prefHeight="37.0" prefWidth="106.0" style="-fx-background-radius: 15;" text="Get Next">
+                  <Button layoutX="162.0" layoutY="76.0" mnemonicParsing="false" onAction="#getNext" prefHeight="37.0" prefWidth="126.0" style="-fx-background-radius: 15;" text="Get Next">
                      <font>
                         <Font name="Arial" size="20.0" />
                      </font>
                   </Button>
-                  <Button layoutX="462.0" layoutY="14.0" mnemonicParsing="false" onAction="#containsOnAction" prefHeight="37.0" prefWidth="154.0" style="-fx-background-radius: 15;" text="Contains">
+                  <Button layoutX="480.0" layoutY="14.0" mnemonicParsing="false" onAction="#containsOnAction" prefHeight="37.0" prefWidth="154.0" style="-fx-background-radius: 15;" text="Contains">
                      <font>
                         <Font name="Arial" size="20.0" />
                      </font>

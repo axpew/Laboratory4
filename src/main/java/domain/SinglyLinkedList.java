@@ -10,6 +10,8 @@ public class SinglyLinkedList implements List {
 
     }//End constructor
 
+
+
     @Override
     public int size() throws ListException {
 
@@ -206,11 +208,16 @@ public class SinglyLinkedList implements List {
 
     @Override
     public void sort() throws ListException {
-
         if(isEmpty())
-            throw new ListException("Doubly Linked List is empty");
+            throw new ListException("Singly Linked List is empty");
 
-        int n = size();
+        int n = 0;
+        try {
+            n = size();
+        } catch (ListException e) {
+            throw new ListException("Error al obtener tamaño: " + e.getMessage());
+        }
+
         boolean swapped;
 
         for(int i = 0; i < n - 1; i++) {
@@ -220,25 +227,37 @@ public class SinglyLinkedList implements List {
             for(int j = 0; j < n - i - 1; j++) {
                 Node nextNode = current.next;
 
-                // Comparamos los nombres de los estudiantes
-                Student currentStudent = (Student)current.data;
-                Student nextStudent = (Student)nextNode.data;
+                // Verificamos si los nodos contienen estudiantes para ordenar por nombre
+                if(current.data instanceof Student && nextNode.data instanceof Student) {
+                    Student currentStudent = (Student)current.data;
+                    Student nextStudent = (Student)nextNode.data;
 
-                if(currentStudent.getName().compareTo(nextStudent.getName()) > 0) {
-                    // Intercambiamos los datos de los nodos
-                    Object temp = current.data;
-                    current.data = nextNode.data;
-                    nextNode.data = temp;
-                    swapped = true;
+                    // Ordenamos por nombre (orden alfabético)
+                    if(currentStudent.getName().compareTo(nextStudent.getName()) > 0) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
+                } else {
+                    // Para otros tipos de objetos usamos el método compare de Utility
+                    if(util.Utility.compare(current.data, nextNode.data) > 0) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
                 }
 
                 current = current.next;
             }
 
+            // Si no hubo intercambios en esta pasada, la lista ya está ordenada
             if(!swapped)
                 break;
         }
-
     }
 
     @Override
@@ -370,5 +389,7 @@ public class SinglyLinkedList implements List {
         }
         return result;
     }//End toString
+
+
 
 }//END CLASS

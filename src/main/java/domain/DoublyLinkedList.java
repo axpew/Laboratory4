@@ -200,7 +200,13 @@ public class DoublyLinkedList implements List{
         if(isEmpty())
             throw new ListException("Doubly Linked List is empty");
 
-        int n = size();
+        int n = 0;
+        try {
+            n = size();
+        } catch (ListException e) {
+            throw new ListException("Error al obtener tamaño: " + e.getMessage());
+        }
+
         boolean swapped;
 
         for(int i = 0; i < n - 1; i++) {
@@ -210,11 +216,12 @@ public class DoublyLinkedList implements List{
             for(int j = 0; j < n - i - 1; j++) {
                 Node nextNode = current.next;
 
-                // Manejamos diferentes tipos de objetos
+                // Verificamos si los nodos contienen cursos para ordenar por nombre
                 if(current.data instanceof Course && nextNode.data instanceof Course) {
                     Course currentCourse = (Course)current.data;
                     Course nextCourse = (Course)nextNode.data;
 
+                    // Ordenamos por nombre (orden alfabético)
                     if(currentCourse.getName().compareTo(nextCourse.getName()) > 0) {
                         // Intercambiamos los datos de los nodos
                         Object temp = current.data;
@@ -226,6 +233,7 @@ public class DoublyLinkedList implements List{
                     Student currentStudent = (Student)current.data;
                     Student nextStudent = (Student)nextNode.data;
 
+                    // Ordenamos por nombre (orden alfabético)
                     if(currentStudent.getName().compareTo(nextStudent.getName()) > 0) {
                         // Intercambiamos los datos de los nodos
                         Object temp = current.data;
@@ -233,19 +241,8 @@ public class DoublyLinkedList implements List{
                         nextNode.data = temp;
                         swapped = true;
                     }
-                } else if(current.data instanceof Register && nextNode.data instanceof Register) {
-                    Register currentRegister = (Register)current.data;
-                    Register nextRegister = (Register)nextNode.data;
-
-                    if(currentRegister.getId() > nextRegister.getId()) {
-                        // Intercambiamos los datos de los nodos
-                        Object temp = current.data;
-                        current.data = nextNode.data;
-                        nextNode.data = temp;
-                        swapped = true;
-                    }
                 } else {
-                    // Para otros tipos de objetos, intentamos usar la utilidad de comparación
+                    // Para otros tipos de objetos usamos el método compare de Utility
                     if(util.Utility.compare(current.data, nextNode.data) > 0) {
                         // Intercambiamos los datos de los nodos
                         Object temp = current.data;
