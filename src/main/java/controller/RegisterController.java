@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
@@ -17,6 +18,8 @@ import java.time.LocalDateTime;
 public class RegisterController {
     @FXML
     private Text txtMessage;
+    @FXML
+    private TextArea taShowMessages;
     @FXML
     private Pane mainPain;
     @FXML
@@ -83,6 +86,10 @@ public class RegisterController {
 
     @FXML
     public void initialize() {
+        // Configuramos el TextArea
+        taShowMessages.setEditable(false);
+        taShowMessages.setWrapText(true);
+
         registerList = registerListGlobal;
 
         // Configuramos las columnas de la tabla
@@ -96,6 +103,13 @@ public class RegisterController {
 
         // Cargamos los datos en la tabla
         updateTableView();
+
+        // Mostramos un mensaje inicial
+        try {
+            taShowMessages.setText("Lista de registros cargada con éxito. Total de registros: " + registerList.size());
+        } catch (ListException e) {
+            taShowMessages.setText("Error al cargar la lista de registros: " + e.getMessage());
+        }
     }
 
     // Método para actualizar la tabla
@@ -143,6 +157,7 @@ public class RegisterController {
                 }
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al convertir la lista a ObservableList: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al convertir la lista a ObservableList: " + e.getMessage());
         }
 
@@ -191,11 +206,12 @@ public class RegisterController {
             if (!registerList.isEmpty() && currentNodeIndex > 1) {
                 currentNodeIndex--;
                 Register register = (Register) registerList.getNode(currentNodeIndex).data;
-                txtMessage.setText("Registro anterior: " + register.toString());
+                taShowMessages.setText("Registro anterior:\n" + register.toString());
             } else {
-                txtMessage.setText("No hay registro anterior disponible");
+                taShowMessages.setText("No hay registro anterior disponible.");
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el registro anterior: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el registro anterior: " + e.getMessage());
         }
     }
@@ -205,9 +221,10 @@ public class RegisterController {
         try {
             registerList.clear();
             updateTableView();
-            txtMessage.setText("Lista de registros limpiada exitosamente");
+            taShowMessages.setText("Lista de registros limpiada exitosamente.");
             registerListGlobal = registerList; // Actualizamos la lista global
         } catch (Exception e) {
+            taShowMessages.setText("Error al limpiar la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al limpiar la lista: " + e.getMessage());
         }
     }
@@ -220,12 +237,16 @@ public class RegisterController {
                 Register selectedRegister = new Register(selectedDisplay.getId());
                 registerList.remove(selectedRegister);
                 updateTableView();
-                txtMessage.setText("Registro eliminado exitosamente");
+                taShowMessages.setText("Registro eliminado exitosamente:\nID: " + selectedDisplay.getId() +
+                        "\nEstudiante: " + selectedDisplay.getStudentName() +
+                        "\nCurso: " + selectedDisplay.getCourseName());
                 registerListGlobal = registerList; // Actualizamos la lista global
             } else {
+                taShowMessages.setText("No se ha seleccionado ningún registro para eliminar.");
                 util.FXUtility.showErrorAlert("Error", "No se ha seleccionado ningún registro");
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar el registro: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar el registro: " + e.getMessage());
         }
     }
@@ -256,8 +277,9 @@ public class RegisterController {
 
             // Actualizamos la vista de la tabla
             updateTableView();
-            txtMessage.setText("Lista de registros ordenada por ID");
+            taShowMessages.setText("Lista de registros ordenada por ID.");
         } catch (ListException e) {
+            taShowMessages.setText("Error al ordenar la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al ordenar la lista: " + e.getMessage());
         }
     }
@@ -267,9 +289,10 @@ public class RegisterController {
         try {
             Register removedRegister = (Register) registerList.removeFirst();
             updateTableView();
-            txtMessage.setText("Primer registro eliminado: " + removedRegister.toString());
+            taShowMessages.setText("Primer registro eliminado:\n" + removedRegister.toString());
             registerListGlobal = registerList; // Actualizamos la lista global
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar el primer registro: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar el primer registro: " + e.getMessage());
         }
     }
@@ -288,17 +311,20 @@ public class RegisterController {
                     Register register = new Register(registerId);
                     boolean contains = registerList.contains(register);
                     if (contains) {
-                        txtMessage.setText("El registro con ID " + id + " existe en la lista");
+                        taShowMessages.setText("El registro con ID " + id + " existe en la lista.");
                     } else {
-                        txtMessage.setText("El registro con ID " + id + " no existe en la lista");
+                        taShowMessages.setText("El registro con ID " + id + " no existe en la lista.");
                     }
                 } catch (NumberFormatException e) {
+                    taShowMessages.setText("Por favor, ingrese un ID válido (número entero).");
                     util.FXUtility.showErrorAlert("Error", "Por favor, ingrese un ID válido (número entero)");
                 } catch (ListException e) {
+                    taShowMessages.setText("Error al verificar si el registro existe: " + e.getMessage());
                     util.FXUtility.showErrorAlert("Error", "Error al verificar si el registro existe: " + e.getMessage());
                 }
             });
         } catch (Exception e) {
+            taShowMessages.setText("Error: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error: " + e.getMessage());
         }
     }
@@ -310,11 +336,12 @@ public class RegisterController {
             if (!registerList.isEmpty() && currentNodeIndex < size) {
                 currentNodeIndex++;
                 Register register = (Register) registerList.getNode(currentNodeIndex).data;
-                txtMessage.setText("Siguiente registro: " + register.toString());
+                taShowMessages.setText("Siguiente registro:\n" + register.toString());
             } else {
-                txtMessage.setText("No hay siguiente registro disponible");
+                taShowMessages.setText("No hay siguiente registro disponible.");
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el siguiente registro: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el siguiente registro: " + e.getMessage());
         }
     }
@@ -330,6 +357,7 @@ public class RegisterController {
             try {
                 n = registerList.size();
             } catch (ListException e) {
+                taShowMessages.setText("Error al obtener el tamaño de la lista: " + e.getMessage());
                 util.FXUtility.showErrorAlert("Error", "Error al obtener el tamaño de la lista: " + e.getMessage());
                 return;
             }
@@ -357,8 +385,9 @@ public class RegisterController {
 
             // Actualizamos la vista de la tabla
             updateTableView();
-            txtMessage.setText("Lista de registros ordenada por ID de estudiante");
+            taShowMessages.setText("Lista de registros ordenada por ID de estudiante.");
         } catch (Exception e) {
+            taShowMessages.setText("Error al ordenar la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al ordenar la lista: " + e.getMessage());
         }
     }
@@ -367,8 +396,9 @@ public class RegisterController {
     public void sizeOnAction(ActionEvent actionEvent) {
         try {
             int size = registerList.size();
-            txtMessage.setText("Tamaño de la lista de registros: " + size);
+            taShowMessages.setText("Tamaño de la lista de registros: " + size);
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el tamaño de la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el tamaño de la lista: " + e.getMessage());
         }
     }

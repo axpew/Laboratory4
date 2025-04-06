@@ -4,6 +4,7 @@ import domain.Course;
 import domain.DoublyLinkedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -12,6 +13,8 @@ import javafx.scene.text.Text;
 public class addCourseController {
     @FXML
     private Text txtMessage;
+    @FXML
+    private TextArea taShowMessages;
     @FXML
     private Pane mainPain;
     @FXML
@@ -27,59 +30,92 @@ public class addCourseController {
 
     @FXML
     public void initialize() {
-        // No es necesario inicializar nada específico aquí
+        // Configurar TextArea si existe
+        if (taShowMessages != null) {
+            taShowMessages.setEditable(false);
+            taShowMessages.setWrapText(true);
+            taShowMessages.setText("Ingrese los datos del curso y haga clic en 'Add' para agregarlo.");
+        }
     }
 
     @FXML
     public void addOnAction(ActionEvent actionEvent) {
         try {
-            // Obtenemos los datos de los campos de texto
-            String id = idTextfield.getText();
-            String name = nameTextfield.getText();
-            int credits = Integer.parseInt(creditsTextfield.getText());
+            // Validación de campos
+            if (idTextfield.getText().isEmpty() || nameTextfield.getText().isEmpty() ||
+                    creditsTextfield.getText().isEmpty()) {
 
-            // Validamos los datos
-            if (id.isEmpty() || name.isEmpty() || credits <= 0) {
-                util.FXUtility.showErrorAlert("Error", "Todos los campos son obligatorios y los créditos deben ser mayores a 0");
+                String message = "Por favor, complete todos los campos.";
+                if (taShowMessages != null) {
+                    taShowMessages.setText(message);
+                }
+                util.FXUtility.showErrorAlert("Campos requeridos", message);
                 return;
             }
 
-            // Creamos el curso
-            Course newCourse = new Course(id, name, credits);
+            int credits = Integer.parseInt(creditsTextfield.getText());
+            if (credits <= 0) {
+                String message = "Los créditos deben ser un número positivo.";
+                if (taShowMessages != null) {
+                    taShowMessages.setText(message);
+                }
+                util.FXUtility.showErrorAlert("Créditos inválidos", message);
+                return;
+            }
 
-            // Obtenemos la lista global de cursos
+            // Obtener lista global de cursos
             DoublyLinkedList courseList = CourseController.getCourseList();
 
-            // Añadimos el curso a la lista
+            // Crear el nuevo curso
+            Course newCourse = new Course(
+                    idTextfield.getText(),
+                    nameTextfield.getText(),
+                    credits
+            );
+
+            // Añadir a la lista
             courseList.add(newCourse);
 
-            // Actualizamos la lista global
+            // Actualizar la lista global
             CourseController.setCourseList(courseList);
 
-            // Mostramos mensaje de éxito
-            txtMessage.setText("Curso añadido exitosamente");
+            // Mensaje de éxito
+            String successMessage = "Curso agregado exitosamente:\n" + newCourse.toString();
+            if (taShowMessages != null) {
+                taShowMessages.setText(successMessage);
+            }
 
-            // Limpiamos los campos
+            // Limpiar campos
             cleanOnAction(null);
 
         } catch (NumberFormatException e) {
-            util.FXUtility.showErrorAlert("Error", "Los créditos deben ser un número entero");
+            String errorMessage = "Error de formato: Los créditos deben ser un número entero.";
+            if (taShowMessages != null) {
+                taShowMessages.setText(errorMessage);
+            }
+            util.FXUtility.showErrorAlert("FORMATO NO VÁLIDO", errorMessage);
         } catch (Exception e) {
-            util.FXUtility.showErrorAlert("Error", "Error al añadir el curso: " + e.getMessage());
+            String errorMessage = "Error al agregar el curso: " + e.getMessage();
+            if (taShowMessages != null) {
+                taShowMessages.setText(errorMessage);
+            }
+            util.FXUtility.showErrorAlert("Error", errorMessage);
         }
     }
 
     @FXML
     public void exitView(ActionEvent actionEvent) {
-        // Volvemos a la vista de cursos
         util.FXUtility.loadPage("ucr.laboratory4.HelloApplication", "course-view.fxml", mainPain);
     }
 
     @FXML
     public void cleanOnAction(ActionEvent actionEvent) {
-        // Limpiamos todos los campos
         idTextfield.setText("");
         nameTextfield.setText("");
         creditsTextfield.setText("");
+
+        if (taShowMessages != null) {
+            taShowMessages.setText("Campos limpiados. Ingrese los datos del nuevo curso.");
+        }
     }
 }

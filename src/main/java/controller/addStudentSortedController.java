@@ -4,6 +4,7 @@ import domain.SinglyLinkedList;
 import domain.Student;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -12,6 +13,8 @@ import javafx.scene.text.Text;
 public class addStudentSortedController {
     @FXML
     private Text txtMessage;
+    @FXML
+    private TextArea taShowMessages;
     @FXML
     private Pane mainPain;
     @FXML
@@ -29,61 +32,88 @@ public class addStudentSortedController {
 
     @FXML
     public void initialize() {
-        // No es necesario inicializar nada específico aquí
+        // Configurar TextArea si existe
+        if (taShowMessages != null) {
+            taShowMessages.setEditable(false);
+            taShowMessages.setWrapText(true);
+            taShowMessages.setText("Ingrese los datos del estudiante y haga clic en 'Add' para agregarlo de forma ordenada.");
+        }
     }
 
     @FXML
     public void addOnAction(ActionEvent actionEvent) {
         try {
-            // Obtenemos los datos de los campos de texto
-            String id = idTextfield.getText();
-            String name = nameTextfield.getText();
-            int age = Integer.parseInt(ageTextfield.getText());
-            String address = addressTextfield.getText();
+            // Validación de campos
+            if (idTextfield.getText().isEmpty() || nameTextfield.getText().isEmpty() ||
+                    ageTextfield.getText().isEmpty() || addressTextfield.getText().isEmpty()) {
 
-            // Validamos los datos
-            if (id.isEmpty() || name.isEmpty() || address.isEmpty() || age <= 0) {
-                util.FXUtility.showErrorAlert("Error", "Todos los campos son obligatorios y la edad debe ser mayor a 0");
+                String message = "Por favor, complete todos los campos.";
+                if (taShowMessages != null) {
+                    taShowMessages.setText(message);
+                }
+                util.FXUtility.showErrorAlert("Campos requeridos", message);
                 return;
             }
 
-            // Creamos el estudiante
-            Student newStudent = new Student(id, name, age, address);
+            int edad = Integer.parseInt(ageTextfield.getText());
+            if (edad <= 0) {
+                String message = "La edad debe ser un número positivo.";
+                if (taShowMessages != null) {
+                    taShowMessages.setText(message);
+                }
+                util.FXUtility.showErrorAlert("Edad inválida", message);
+                return;
+            }
 
-            // Obtenemos la lista global de estudiantes
-            SinglyLinkedList studentList = util.Utility.getStudentList();
+            SinglyLinkedList list = util.Utility.getStudentList(); // Se toma la lista ya existente
+            Student newStudent = new Student(
+                    idTextfield.getText(),
+                    nameTextfield.getText(),
+                    edad,
+                    addressTextfield.getText()
+            );
 
-            // Añadimos el estudiante de forma ordenada
-            studentList.addInSortedList(newStudent);
+            list.addInSortedList(newStudent); // Añadir de forma ordenada
+            util.Utility.setStudentList(list); // Actualizar la lista global
 
-            // Actualizamos la lista global
-            util.Utility.setStudentList(studentList);
+            // Mensaje de éxito
+            String successMessage = "Estudiante agregado de forma ordenada exitosamente:\n" + newStudent.toString();
+            if (taShowMessages != null) {
+                taShowMessages.setText(successMessage);
+            }
 
-            // Mostramos mensaje de éxito
-            txtMessage.setText("Estudiante añadido de forma ordenada exitosamente");
-
-            // Limpiamos los campos
+            // Limpiar campos
             cleanOnAction(null);
 
         } catch (NumberFormatException e) {
-            util.FXUtility.showErrorAlert("Error", "La edad debe ser un número entero");
+            String errorMessage = "Error de formato: La edad debe ser un número entero.";
+            if (taShowMessages != null) {
+                taShowMessages.setText(errorMessage);
+            }
+            util.FXUtility.showErrorAlert("FORMATO NO VÁLIDO", errorMessage);
         } catch (Exception e) {
-            util.FXUtility.showErrorAlert("Error", "Error al añadir el estudiante: " + e.getMessage());
+            String errorMessage = "Error al agregar el estudiante: " + e.getMessage();
+            if (taShowMessages != null) {
+                taShowMessages.setText(errorMessage);
+            }
+            util.FXUtility.showErrorAlert("Error", errorMessage);
         }
     }
 
     @FXML
     public void exitView(ActionEvent actionEvent) {
-        // Volvemos a la vista de estudiantes
         util.FXUtility.loadPage("ucr.laboratory4.HelloApplication", "student-view.fxml", mainPain);
     }
 
     @FXML
     public void cleanOnAction(ActionEvent actionEvent) {
-        // Limpiamos todos los campos
-        idTextfield.setText("");
         nameTextfield.setText("");
+        idTextfield.setText("");
         ageTextfield.setText("");
         addressTextfield.setText("");
+
+        if (taShowMessages != null) {
+            taShowMessages.setText("Campos limpiados. Ingrese los datos del nuevo estudiante.");
+        }
     }
 }

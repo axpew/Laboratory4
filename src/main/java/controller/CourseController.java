@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
@@ -18,6 +19,8 @@ import javafx.scene.text.Text;
 public class CourseController {
     @FXML
     private Text txtMessage;
+    @FXML
+    private TextArea taShowMessages;
     @FXML
     private Pane mainPain;
     @FXML
@@ -45,6 +48,10 @@ public class CourseController {
 
     @FXML
     public void initialize() {
+        // Configuramos el TextArea
+        taShowMessages.setEditable(false);
+        taShowMessages.setWrapText(true);
+
         courseList = courseListGlobal;
 
         // Solo agregar cursos iniciales si la lista está vacía
@@ -67,6 +74,13 @@ public class CourseController {
 
         // Cargamos los datos en la tabla
         studentTableColumn.setItems(convertToObservableList(courseList));
+
+        // Mostramos un mensaje inicial
+        try {
+            taShowMessages.setText("Lista de cursos cargada con éxito. Total de cursos: " + courseList.size());
+        } catch (ListException e) {
+            taShowMessages.setText("Error al cargar la lista de cursos: " + e.getMessage());
+        }
     }
 
     // Método para convertir la lista enlazada a ObservableList para mostrar en TableView
@@ -90,6 +104,7 @@ public class CourseController {
                 }
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al convertir la lista a ObservableList: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al convertir la lista a ObservableList: " + e.getMessage());
         }
 
@@ -107,9 +122,10 @@ public class CourseController {
         try {
             courseList.clear();
             studentTableColumn.setItems(convertToObservableList(courseList));
-            txtMessage.setText("Lista de cursos limpiada exitosamente");
+            taShowMessages.setText("Lista de cursos limpiada exitosamente.");
             courseListGlobal = courseList; // Actualizamos la lista global
         } catch (Exception e) {
+            taShowMessages.setText("Error al limpiar la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al limpiar la lista: " + e.getMessage());
         }
     }
@@ -121,12 +137,14 @@ public class CourseController {
             if (selectedCourse != null) {
                 courseList.remove(selectedCourse);
                 studentTableColumn.setItems(convertToObservableList(courseList));
-                txtMessage.setText("Curso eliminado exitosamente");
+                taShowMessages.setText("Curso eliminado exitosamente:\n" + selectedCourse.toString());
                 courseListGlobal = courseList; // Actualizamos la lista global
             } else {
+                taShowMessages.setText("No se ha seleccionado ningún curso para eliminar.");
                 util.FXUtility.showErrorAlert("Error", "No se ha seleccionado ningún curso");
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar el curso: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar el curso: " + e.getMessage());
         }
     }
@@ -147,8 +165,9 @@ public class CourseController {
     public void getFirstOnAction(ActionEvent actionEvent) {
         try {
             Course firstCourse = (Course) courseList.getFirst();
-            txtMessage.setText("Primer curso: " + firstCourse.toString());
+            taShowMessages.setText("Primer curso:\n" + firstCourse.toString());
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el primer curso: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el primer curso: " + e.getMessage());
         }
     }
@@ -158,9 +177,10 @@ public class CourseController {
         try {
             Course removedCourse = (Course) courseList.removeFirst();
             studentTableColumn.setItems(convertToObservableList(courseList));
-            txtMessage.setText("Primer curso eliminado: " + removedCourse.toString());
+            taShowMessages.setText("Primer curso eliminado:\n" + removedCourse.toString());
             courseListGlobal = courseList; // Actualizamos la lista global
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar el primer curso: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar el primer curso: " + e.getMessage());
         }
     }
@@ -178,15 +198,17 @@ public class CourseController {
                     Course course = new Course(id, "", 0);
                     boolean contains = courseList.contains(course);
                     if (contains) {
-                        txtMessage.setText("El curso con ID " + id + " existe en la lista");
+                        taShowMessages.setText("El curso con ID " + id + " existe en la lista.");
                     } else {
-                        txtMessage.setText("El curso con ID " + id + " no existe en la lista");
+                        taShowMessages.setText("El curso con ID " + id + " no existe en la lista.");
                     }
                 } catch (ListException e) {
+                    taShowMessages.setText("Error al verificar si el curso existe: " + e.getMessage());
                     util.FXUtility.showErrorAlert("Error", "Error al verificar si el curso existe: " + e.getMessage());
                 }
             });
         } catch (Exception e) {
+            taShowMessages.setText("Error: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error: " + e.getMessage());
         }
     }
@@ -195,8 +217,9 @@ public class CourseController {
     public void getLastOnAction(ActionEvent actionEvent) {
         try {
             Course lastCourse = (Course) courseList.getLast();
-            txtMessage.setText("Último curso: " + lastCourse.toString());
+            taShowMessages.setText("Último curso:\n" + lastCourse.toString());
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el último curso: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el último curso: " + e.getMessage());
         }
     }
@@ -205,8 +228,9 @@ public class CourseController {
     public void sizeOnAction(ActionEvent actionEvent) {
         try {
             int size = courseList.size();
-            txtMessage.setText("Tamaño de la lista de cursos: " + size);
+            taShowMessages.setText("Tamaño de la lista de cursos: " + size);
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el tamaño de la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el tamaño de la lista: " + e.getMessage());
         }
     }

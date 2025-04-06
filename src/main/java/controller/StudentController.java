@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -19,6 +20,8 @@ public class StudentController {
 
     @FXML
     private Text txtMessage;
+    @FXML
+    private TextArea taShowMessages;
     @FXML
     private TableColumn idTableColumn;
     @FXML
@@ -38,8 +41,26 @@ public class StudentController {
 
     @FXML
     public void initialize() {
+        // Configuramos el TextArea
+        taShowMessages.setEditable(false);
+        taShowMessages.setWrapText(true);
+
         // Cargamos la lista general
         this.studentList = Utility.getStudentList();
+
+        // Si la lista está vacía, agregamos algunos estudiantes iniciales
+        if(studentList.isEmpty()) {
+            studentList.add(new Student("1", "María", 20, "Cartago"));
+            studentList.add(new Student("2", "Carlos", 22, "San José"));
+            studentList.add(new Student("3", "Laura", 20, "Paraíso"));
+            studentList.add(new Student("4", "Paula", 18, "Turrialba"));
+            studentList.add(new Student("5", "Carlos", 21, "Limón"));
+            studentList.add(new Student("6", "Fabiana", 19, "Paraíso"));
+            studentList.add(new Student("7", "María", 23, "Guanacaste"));
+            studentList.add(new Student("8", "Carlos", 25, "San Carlos"));
+            studentList.add(new Student("9", "Laura", 20, "Turrialba"));
+            studentList.add(new Student("10", "Pedro", 24, "Heredia"));
+        }
 
         // Asignar la lista al TableView
         studentTableColumn.setItems(convertToObservableList(studentList));
@@ -49,6 +70,13 @@ public class StudentController {
         nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         ageTableColumn.setCellValueFactory(new PropertyValueFactory<>("age"));
         addressTableColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+
+        // Mostramos un mensaje inicial
+        try {
+            taShowMessages.setText("Lista de estudiantes cargada con éxito. Total de estudiantes: " + this.studentList.size());
+        } catch (ListException e) {
+            taShowMessages.setText("Error al cargar la lista de estudiantes: " + e.getMessage());
+        }
     }
 
     public ObservableList<Student> convertToObservableList(SinglyLinkedList list) {
@@ -83,11 +111,12 @@ public class StudentController {
         try {
             studentList.clear();
             studentTableColumn.setItems(convertToObservableList(studentList));
-            txtMessage.setText("Lista de estudiantes limpiada exitosamente");
+            taShowMessages.setText("Lista de estudiantes limpiada exitosamente.");
 
             // Actualizamos la lista global
             util.Utility.setStudentList(this.studentList);
         } catch (Exception e) {
+            taShowMessages.setText("Error al limpiar la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al limpiar la lista: " + e.getMessage());
         }
     }
@@ -99,14 +128,16 @@ public class StudentController {
             if (selectedStudent != null) {
                 studentList.remove(selectedStudent);
                 studentTableColumn.setItems(convertToObservableList(studentList));
-                txtMessage.setText("Estudiante eliminado exitosamente");
+                taShowMessages.setText("Estudiante eliminado exitosamente:\n" + selectedStudent.toString());
 
                 // Actualizamos la lista global
                 util.Utility.setStudentList(this.studentList);
             } else {
+                taShowMessages.setText("No se ha seleccionado ningún estudiante para eliminar.");
                 util.FXUtility.showErrorAlert("Error", "No se ha seleccionado ningún estudiante");
             }
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar estudiante: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar estudiante: " + e.getMessage());
         }
     }
@@ -121,8 +152,9 @@ public class StudentController {
     public void getFirstOnAction(ActionEvent actionEvent) {
         try {
             Student firstStudent = (Student) studentList.getFirst();
-            txtMessage.setText("Primer estudiante: " + firstStudent.toString());
+            taShowMessages.setText("Primer estudiante:\n" + firstStudent.toString());
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el primer estudiante: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el primer estudiante: " + e.getMessage());
         }
     }
@@ -132,11 +164,12 @@ public class StudentController {
         try {
             Student removedStudent = (Student) studentList.removeFirst();
             studentTableColumn.setItems(convertToObservableList(studentList));
-            txtMessage.setText("Primer estudiante eliminado: " + removedStudent.toString());
+            taShowMessages.setText("Primer estudiante eliminado:\n" + removedStudent.toString());
 
             // Actualizamos la lista global
             util.Utility.setStudentList(this.studentList);
         } catch (ListException e) {
+            taShowMessages.setText("Error al eliminar el primer estudiante: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al eliminar el primer estudiante: " + e.getMessage());
         }
     }
@@ -154,15 +187,17 @@ public class StudentController {
                     Student student = new Student(id);
                     boolean contains = studentList.contains(student);
                     if (contains) {
-                        txtMessage.setText("El estudiante con ID " + id + " existe en la lista");
+                        taShowMessages.setText("El estudiante con ID " + id + " existe en la lista.");
                     } else {
-                        txtMessage.setText("El estudiante con ID " + id + " no existe en la lista");
+                        taShowMessages.setText("El estudiante con ID " + id + " no existe en la lista.");
                     }
                 } catch (ListException e) {
+                    taShowMessages.setText("Error al verificar si el estudiante existe: " + e.getMessage());
                     util.FXUtility.showErrorAlert("Error", "Error al verificar si el estudiante existe: " + e.getMessage());
                 }
             });
         } catch (Exception e) {
+            taShowMessages.setText("Error: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error: " + e.getMessage());
         }
     }
@@ -171,8 +206,9 @@ public class StudentController {
     public void getLastOnAction(ActionEvent actionEvent) {
         try {
             Student lastStudent = (Student) studentList.getLast();
-            txtMessage.setText("Último estudiante: " + lastStudent.toString());
+            taShowMessages.setText("Último estudiante:\n" + lastStudent.toString());
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el último estudiante: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el último estudiante: " + e.getMessage());
         }
     }
@@ -181,8 +217,9 @@ public class StudentController {
     public void sizeOnAction(ActionEvent actionEvent) {
         try {
             int size = studentList.size();
-            txtMessage.setText("Tamaño de la lista de estudiantes: " + size);
+            taShowMessages.setText("Tamaño de la lista de estudiantes: " + size);
         } catch (ListException e) {
+            taShowMessages.setText("Error al obtener el tamaño de la lista: " + e.getMessage());
             util.FXUtility.showErrorAlert("Error", "Error al obtener el tamaño de la lista: " + e.getMessage());
         }
     }
