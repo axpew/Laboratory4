@@ -95,6 +95,7 @@ public class DoublyLinkedList implements List{
             if (util.Utility.compare(first.data, newNode.data) > 0) {
 
                 newNode.next = first;
+                first.prev = newNode; // Enlace doble
                 first = newNode;
 
             } else {
@@ -111,7 +112,13 @@ public class DoublyLinkedList implements List{
 
                 postNode = aux.next;
                 aux.next = newNode;
-                newNode.next = postNode;
+                newNode.prev = aux; // Enlace doble
+
+                // Si postNode no es nulo, completamos el enlace doble
+                if (postNode != null) {
+                    newNode.next = postNode;
+                    postNode.prev = newNode;
+                }
 
             }//End if2
         }//End if1
@@ -126,7 +133,8 @@ public class DoublyLinkedList implements List{
         //Caso 1: El elemento a suprimir es el primero de la lista
         if(util.Utility.compare(first.data, element)==0) {
             first = first.next;
-            first.prev = null; //actualizo el enlace al nodo anteior
+            if (first != null) // Si la lista no quedó vacía
+                first.prev = null; //actualizo el enlace al nodo anteior
         }
         //Caso 2. El elemento puede estar en el medio o al final
         else{
@@ -164,7 +172,7 @@ public class DoublyLinkedList implements List{
     public Object removeLast() throws ListException {
 
         if (isEmpty())
-            throw new ListException("Singly Linked List is empty");
+            throw new ListException("Doubly Linked List is empty");
 
         //Si hay solo un nodo en la lista se elimina
         if (first.next == null) {
@@ -173,24 +181,87 @@ public class DoublyLinkedList implements List{
             return data;
         }//End if
 
-
+        // Ventaja de la lista doblemente enlazada: no necesitamos recorrer toda la lista
+        // para encontrar el último nodo, simplemente vamos de nodo en nodo hasta el final
         Node aux = first;
-        Node prev = null;
-
-
-        while (aux.next != null) { //Recorre toda la lista
-            prev = aux;
+        while (aux.next != null) {
             aux = aux.next;
-        }//End while
+        }
 
-        //aux es el último y prev el anterior a ese
-        prev.next = null; //Desconecta el último nodo
+        // aux ahora es el último nodo
+        Node prev = aux.prev;
+        prev.next = null;
+
         return aux.data;
     }
 
     @Override
     public void sort() throws ListException {
+        if(isEmpty())
+            throw new ListException("Doubly Linked List is empty");
 
+        int n = size();
+        boolean swapped;
+
+        for(int i = 0; i < n - 1; i++) {
+            swapped = false;
+            Node current = first;
+
+            for(int j = 0; j < n - i - 1; j++) {
+                Node nextNode = current.next;
+
+                // Manejamos diferentes tipos de objetos
+                if(current.data instanceof Course && nextNode.data instanceof Course) {
+                    Course currentCourse = (Course)current.data;
+                    Course nextCourse = (Course)nextNode.data;
+
+                    if(currentCourse.getName().compareTo(nextCourse.getName()) > 0) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
+                } else if(current.data instanceof Student && nextNode.data instanceof Student) {
+                    Student currentStudent = (Student)current.data;
+                    Student nextStudent = (Student)nextNode.data;
+
+                    if(currentStudent.getName().compareTo(nextStudent.getName()) > 0) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
+                } else if(current.data instanceof Register && nextNode.data instanceof Register) {
+                    Register currentRegister = (Register)current.data;
+                    Register nextRegister = (Register)nextNode.data;
+
+                    if(currentRegister.getId() > nextRegister.getId()) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
+                } else {
+                    // Para otros tipos de objetos, intentamos usar la utilidad de comparación
+                    if(util.Utility.compare(current.data, nextNode.data) > 0) {
+                        // Intercambiamos los datos de los nodos
+                        Object temp = current.data;
+                        current.data = nextNode.data;
+                        nextNode.data = temp;
+                        swapped = true;
+                    }
+                }
+
+                current = current.next;
+            }
+
+            // Si no hubo intercambios en esta pasada, la lista ya está ordenada
+            if(!swapped)
+                break;
+        }
     }
 
     @Override
@@ -216,17 +287,53 @@ public class DoublyLinkedList implements List{
 
     @Override
     public Object getLast() throws ListException {
-        return null;
+        if(isEmpty())
+            throw new ListException("Doubly Linked List is empty");
+
+        Node aux = first;
+        while(aux.next != null) {
+            aux = aux.next;
+        }
+
+        return aux.data;
     }
 
     @Override
     public Object getPrev(Object element) throws ListException {
-        return null;
+        if(isEmpty())
+            throw new ListException("Doubly Linked List is empty");
+
+        Node current = first;
+
+        // Si buscamos el anterior del primer elemento
+        if(util.Utility.compare(current.data, element) == 0)
+            return null; // No hay elemento anterior
+
+        while(current != null) {
+            if(util.Utility.compare(current.data, element) == 0) {
+                return current.prev != null ? current.prev.data : null;
+            }
+            current = current.next;
+        }
+
+        return null; // Elemento no encontrado
     }
 
     @Override
     public Object getNext(Object element) throws ListException {
-        return null;
+        if(isEmpty())
+            throw new ListException("Doubly Linked List is empty");
+
+        Node current = first;
+
+        while(current != null) {
+            if(util.Utility.compare(current.data, element) == 0) {
+                return current.next != null ? current.next.data : null;
+            }
+            current = current.next;
+        }
+
+        return null; // Elemento no encontrado
     }
 
     @Override

@@ -1,63 +1,213 @@
 package controller;
 
-public class CourseController
-{
-    @javafx.fxml.FXML
+import domain.Course;
+import domain.DoublyLinkedList;
+import domain.ListException;
+import domain.Node;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+
+public class CourseController {
+    @FXML
     private Text txtMessage;
-    @javafx.fxml.FXML
+    @FXML
     private Pane mainPain;
-    @javafx.fxml.FXML
+    @FXML
     private TableColumn idTableColumn;
-    @javafx.fxml.FXML
+    @FXML
     private TableColumn nameTableColumn;
-    @javafx.fxml.FXML
+    @FXML
     private TableColumn creditsTableColumn;
-    @javafx.fxml.FXML
+    @FXML
     private Pane buttonPane;
-    @javafx.fxml.FXML
+    @FXML
     private TableView studentTableColumn;
 
-    @javafx.fxml.FXML
+    private DoublyLinkedList courseList;
+    private static DoublyLinkedList courseListGlobal = new DoublyLinkedList();
+
+    // Métodos para acceder a la lista global de cursos
+    public static DoublyLinkedList getCourseList() {
+        return courseListGlobal;
+    }
+
+    public static void setCourseList(DoublyLinkedList list) {
+        courseListGlobal = list;
+    }
+
+    @FXML
     public void initialize() {
+        courseList = courseListGlobal;
+
+        // Solo agregar cursos iniciales si la lista está vacía
+        if(courseList.isEmpty()) {
+            courseList.add(new Course("IF-3001", "Algoritmos y Estructuras de Datos", 4));
+            courseList.add(new Course("IF-4001", "Sistemas Operativos", 4));
+            courseList.add(new Course("IF-2000", "Programación 1", 4));
+            courseList.add(new Course("IF-3000", "Programación 2", 4));
+            courseList.add(new Course("IF-4000", "Arquitectura", 3));
+            courseList.add(new Course("IF-5000", "Redes", 4));
+            courseList.add(new Course("IF-5100", "Bases de Datos", 4));
+            courseList.add(new Course("IF-4101", "Lenguajes app Comerciales", 4));
+            courseList.add(new Course("IF-3100", "Sistemas de Información", 3));
+        }
+
+        // Configuramos las columnas de la tabla
+        idTableColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        creditsTableColumn.setCellValueFactory(new PropertyValueFactory<>("credits"));
+
+        // Cargamos los datos en la tabla
+        studentTableColumn.setItems(convertToObservableList(courseList));
     }
 
-    @javafx.fxml.FXML
+    // Método para convertir la lista enlazada a ObservableList para mostrar en TableView
+    public ObservableList<Course> convertToObservableList(DoublyLinkedList list) {
+        ObservableList<Course> courses = FXCollections.observableArrayList();
+
+        try {
+            if (!list.isEmpty()) {
+                Node aux = list.getNode(1);
+                int i = 1;
+                while (aux != null) {
+                    Object data = aux.data;
+                    Course current = (Course) data;
+                    courses.add(current);
+                    i++;
+                    try {
+                        aux = list.getNode(i);
+                    } catch (ListException e) {
+                        aux = null;
+                    }
+                }
+            }
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al convertir la lista a ObservableList: " + e.getMessage());
+        }
+
+        return courses;
+    }
+
+    @FXML
     public void addFirstOnAction(ActionEvent actionEvent) {
+        util.FXUtility.loadPage("ucr.laboratory4.HelloApplication", "addCourseFirst-view.fxml", mainPain);
+        courseListGlobal = courseList; // Actualizamos la lista global
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void clearOnAction(ActionEvent actionEvent) {
+        try {
+            courseList.clear();
+            studentTableColumn.setItems(convertToObservableList(courseList));
+            txtMessage.setText("Lista de cursos limpiada exitosamente");
+            courseListGlobal = courseList; // Actualizamos la lista global
+        } catch (Exception e) {
+            util.FXUtility.showErrorAlert("Error", "Error al limpiar la lista: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void removeOnAction(ActionEvent actionEvent) {
+        try {
+            Course selectedCourse = (Course) studentTableColumn.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                courseList.remove(selectedCourse);
+                studentTableColumn.setItems(convertToObservableList(courseList));
+                txtMessage.setText("Curso eliminado exitosamente");
+                courseListGlobal = courseList; // Actualizamos la lista global
+            } else {
+                util.FXUtility.showErrorAlert("Error", "No se ha seleccionado ningún curso");
+            }
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al eliminar el curso: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void addOnAction(ActionEvent actionEvent) {
+        util.FXUtility.loadPage("ucr.laboratory4.HelloApplication", "addCourse-view.fxml", mainPain);
+        courseListGlobal = courseList; // Actualizamos la lista global
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void addSortedOnAction(ActionEvent actionEvent) {
+        util.FXUtility.loadPage("ucr.laboratory4.HelloApplication", "addCourseSorted-view.fxml", mainPain);
+        courseListGlobal = courseList; // Actualizamos la lista global
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void getFirstOnAction(ActionEvent actionEvent) {
+        try {
+            Course firstCourse = (Course) courseList.getFirst();
+            txtMessage.setText("Primer curso: " + firstCourse.toString());
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al obtener el primer curso: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void removeFirstOnAction(ActionEvent actionEvent) {
+        try {
+            Course removedCourse = (Course) courseList.removeFirst();
+            studentTableColumn.setItems(convertToObservableList(courseList));
+            txtMessage.setText("Primer curso eliminado: " + removedCourse.toString());
+            courseListGlobal = courseList; // Actualizamos la lista global
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al eliminar el primer curso: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void containsOnAction(ActionEvent actionEvent) {
+        try {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Verificar Curso");
+            dialog.setHeaderText("Ingrese el ID del curso");
+            dialog.setContentText("ID:");
+
+            dialog.showAndWait().ifPresent(id -> {
+                try {
+                    Course course = new Course(id, "", 0);
+                    boolean contains = courseList.contains(course);
+                    if (contains) {
+                        txtMessage.setText("El curso con ID " + id + " existe en la lista");
+                    } else {
+                        txtMessage.setText("El curso con ID " + id + " no existe en la lista");
+                    }
+                } catch (ListException e) {
+                    util.FXUtility.showErrorAlert("Error", "Error al verificar si el curso existe: " + e.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            util.FXUtility.showErrorAlert("Error", "Error: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void getLastOnAction(ActionEvent actionEvent) {
+        try {
+            Course lastCourse = (Course) courseList.getLast();
+            txtMessage.setText("Último curso: " + lastCourse.toString());
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al obtener el último curso: " + e.getMessage());
+        }
     }
 
-    @javafx.fxml.FXML
+    @FXML
     public void sizeOnAction(ActionEvent actionEvent) {
+        try {
+            int size = courseList.size();
+            txtMessage.setText("Tamaño de la lista de cursos: " + size);
+        } catch (ListException e) {
+            util.FXUtility.showErrorAlert("Error", "Error al obtener el tamaño de la lista: " + e.getMessage());
+        }
     }
 }

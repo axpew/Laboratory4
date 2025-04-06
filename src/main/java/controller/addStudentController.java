@@ -30,8 +30,6 @@ public class addStudentController {
     private Pane mainPain;
 
 
-
-
     @javafx.fxml.FXML
     public void addOnAction(ActionEvent actionEvent) {
 

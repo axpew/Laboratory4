@@ -46,7 +46,7 @@ public class HelloController {
     @FXML
     public void coursesView(ActionEvent actionEvent) {
         try {
-            load("courses-view.fxml");
+            load("course-view.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }
